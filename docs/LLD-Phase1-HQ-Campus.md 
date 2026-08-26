@@ -1,1 +1,40 @@
+# Phase 1 Low-Level Design (LLD): HQ Campus Infrastructure
+
+## 1. Executive Summary & Design Rationale
+
+The HQ Campus network serves as the enterprise core anchor for local users, IP telephony, and management traffic.
+
+### Key Decisions:
+* **VLANs:** Used to keep user data, voice calls, and switch management traffic separate for better security and organization.
+* **LACP Link Aggregation:** Combines two physical 1Gbps cables between HQ-SW1 and HQ-SW2 into a single 2Gbps logical link (`Port-Channel 1`). This provides extra bandwidth and backup if one cable fails.
+* **802.1Q Trunking:** Allows traffic for multiple VLANs to pass over a single cable between switches, using VLAN 99 as the untagged Native VLAN.
+
+---
+
+## 2. IP Addressing & VLAN Table
+The HQ Campus uses the private 10.10.0.0/16 address range, which is broken down into /24 subnets for each VLAN.
+
+
+| VLAN ID | VLAN Name | Subnet Network | Subnet Mask | Gateway IP (`HQ-SW1`) | Purpose |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **VLAN 10** | `DATA_USERS` | `10.10.10.0/24` | `255.255.255.0` | `10.10.10.1` | User PCs (`PC1`: `10.10.10.10`) |
+| **VLAN 20** | `VOICE_IP` | `10.10.20.0/24` | `255.255.255.0` | `10.10.20.1` | IP Phones |
+| **VLAN 99** | `NATIVE_MGMT` | `10.10.99.0/24` | `255.255.255.0` | `10.10.99.1` | Switch Management (`HQ-SW2`: `10.10.99.2`) |
+| **P2P Link**| `WAN_TRANSIT`| `10.0.0.0/30` | `255.255.255.252`| N/A | Router Link (`HQ-SW1` to `HQ-R1`) |
+
+---
+
+## 3. Switch Ports & Link Connections
+
+| Device | Local Port | Target Device | Target Port | Connection Type | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`HQ-SW1`** | `Gi0/1` | **`HQ-SW2`** | `Gi0/1` | Physical Cable | LACP `Po1` Member |
+| **`HQ-SW1`** | `Gi0/2` | **`HQ-SW2`** | `Gi0/2` | Physical Cable | LACP `Po1` Member |
+| **`HQ-SW1`** | `Port-Channel1` | **`HQ-SW2`** | `Port-Channel1` | Logical Link | Trunk (VLANs 10, 20, 99) |
+| **`HQ-SW2`** | `Gi0/3` | **`PC1`** | `eth0` | Access Port | Assigned to **VLAN 10** |
+
+
+
+
+
 
