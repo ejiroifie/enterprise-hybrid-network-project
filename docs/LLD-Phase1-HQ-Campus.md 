@@ -38,7 +38,7 @@ The HQ Campus uses the private `10.10.0.0/16` address space, segmented into `/24
 | HQ-SW1        | Gi0/2          | HQ-SW2        | Gi0/2          | Physical Link   | LACP Member (Port-Channel 1)          |
 | HQ-SW1        | Port-Channel1  | HQ-SW2        | Port-Channel1  | Logical Trunk   | 802.1Q (Allowed VLANs: 10, 20, 99)    |
 | HQ-SW1        | Gi0/0          | HQ-R1         | Gi0/0          | Routed Link     | Layer 3 (no switchport)               |
-| HQ-SW2        | Gi0/3          | PC1           | eth0           | Access Port     | Static Assignment (VLAN 10)           |
+| HQ-SW2        | Gi1/0          | PC1           | eth0           | Access Port     | Static Assignment (VLAN 10)           |
 +---------------+----------------+---------------+----------------+-----------------+---------------------------------------+
 
 
