@@ -1,1 +1,5 @@
-
+### Break-Fix 1: LACP Mode Mismatch (Active vs. On)
+- **Problem Statement:** Intermittent trunk outage and Port-Channel failure between HQ-SW1 and HQ-SW2.
+- **Root Cause:** HQ-SW1 configured for dynamic LACP (`mode active`), while HQ-SW2 configured for static EtherChannel (`mode on`).
+- **Diagnostic Commands:** `show etherchannel summary`, `show interface trunk`
+- **Resolution:** Re-align EtherChannel modes across both switches to active LACP (`channel-group 1 mode active`).
