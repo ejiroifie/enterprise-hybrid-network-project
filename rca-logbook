@@ -49,3 +49,30 @@ HQ-SW1# configure terminal
 HQ-SW1(config)# vlan 20
 HQ-SW1(config-vlan)# name VOICE
 HQ-SW1(config-vlan)# exit
+
+
+### Break-Fix Scenario 4: Spanning Tree Protocol (STP) Root Bridge Hijack
+
+**Symptom:**  
+`HQ-SW1` lost its Root Bridge status for VLAN 10, causing suboptimal and asymmetric Layer 2 forwarding paths across the trunk links for user data traffic.
+
+**Root Cause:**  
+`HQ-SW2` was configured with a lower STP bridge priority (`4096`) for VLAN 10 than `HQ-SW1` (`32768`), causing `HQ-SW2` to win the Root Bridge election for VLAN 10 under Rapid PVST+.
+
+**Diagnostics Executed:**
+1. Checked STP summary on `HQ-SW1`:
+   `HQ-SW1# show spanning-tree summary`
+   *Confirmed `HQ-SW1` was only Root Bridge for VLANs 1, 20, and 99, but NOT VLAN 10.*
+2. Inspected detailed STP state for VLAN 10:
+   `HQ-SW1# show spanning-tree vlan 10`
+   *Verified `Port-channel1` was set to `Root FWD`, indicating `HQ-SW1` was receiving superior BPDUs from `HQ-SW2`.*
+
+**Remediation Applied:**
+Deterministic STP priority values were applied across the infrastructure to enforce `HQ-SW1` as the Primary Root Bridge and `HQ-SW2` as the Secondary Root Bridge for all active VLANs:
+
+```ios
+! On HQ-SW1 (Primary Core)
+HQ-SW1(config)# spanning-tree vlan 1,10,20,99 priority 4096
+
+! On HQ-SW2 (Backup Core)
+HQ-SW2(config)# spanning-tree vlan 1,10,20,99 priority 8192
