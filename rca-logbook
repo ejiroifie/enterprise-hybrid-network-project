@@ -20,3 +20,32 @@
   HQ-SW2(config-if)# switchport trunk native vlan 99
   HQ-SW2(config-if)# switchport trunk allowed vlan 10,20,99
 - **Endpoint Note:** VPCS nodes lose volatile IP configurations upon lab reloads unless `save` is executed on the VPCS CLI. Re-assigned `ip 10.10.10.10 255.255.255.0 10.10.10.1` and saved state during verification.
+
+
+### Break-Fix 3: SVI Autostate Failure & Missing Layer 2 VLAN Definition
+
+**Problem statement:**  
+Endpoints in VLAN 20 report an inability to reach their default gateway `10.10.20.1`. Verified that `interface Vlan20` was assigned an IP address, but inter-VLAN routing and gateway reachability were unreliable across the trunk infrastructure due to missing Layer 2 VLAN database definitions and unverified autostate conditions.
+
+**Root Cause:**  
+While Cisco IOS automatically instantiates an SVI when an `interface VlanX` is created, the underlying Layer 2 VLAN entry was not explicitly defined in the VLAN database (`vlan 20`). Without explicit Layer 2 database registration and active forwarders (access ports or trunk allowed-lists carrying the VLAN), the SVI autostate mechanism fails to maintain operational consistency across multi-switch topologies.
+
+**Diagnostics Executed:**
+1. Checked SVI operational status:
+   `HQ-SW1# show interface Vlan20`
+   *Output confirmed line protocol status and MAC/IP binding.*
+2. Inspected Layer 2 VLAN database:
+   `HQ-SW1# show vlan brief`
+   *Verified VLAN 20 database presence and naming.*
+3. Verified IP interface summary:
+   `HQ-SW1# show ip interface brief | include Vlan20`
+   *Confirmed status: `10.10.20.1 YES NVRAM up up`.*
+
+**Resolution:**
+Explicitly configured Layer 2 VLAN 20, assigned a descriptive name, and verified operational autostate status on `HQ-SW1`:
+
+```ios
+HQ-SW1# configure terminal
+HQ-SW1(config)# vlan 20
+HQ-SW1(config-vlan)# name VOICE
+HQ-SW1(config-vlan)# exit
