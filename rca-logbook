@@ -6,7 +6,16 @@
 
 
 ### Break-Fix 2: Native VLAN Mismatch & Trunk Pruning Failure
-- **Problem Statement:** PC1 lost connectivity to its default gateway (10.10.10.1) and CDP native VLAN mismatch logs appeared.
-- **Root Cause:** `Port-channel1` on HQ-SW2 had its native VLAN changed to VLAN 1, and VLAN 10 was accidentally pruned from the allowed trunk list (`switchport trunk allowed vlan 20,99`).
-- **Diagnostic Commands:** `show interfaces trunk`, `show cdp neighbors`
-- **Resolution:** Re-configured `Port-channel1` on HQ-SW2 to use Native VLAN 99 and restored VLAN 10 to the allowed trunk list (`switchport trunk allowed vlan 10,20,99`).
+- **Problem Statement:** Host PC1 (`10.10.10.10`) lost end-to-end network connectivity to its default gateway (`10.10.10.1`) and management SVI (`10.10.99.2`).
+- **Root Cause:** 
+  1. `Port-channel1` on `HQ-SW2` had its Native VLAN altered to VLAN 1 (mismatched with `HQ-SW1` on Native VLAN 99).
+  2. VLAN 10 was manually pruned from the allowed trunk list via `switchport trunk allowed vlan 20,99`, blocking data plane traffic for VLAN 10 across the link.
+- **Diagnostic Commands & Findings:**
+  - `show interfaces trunk`: Revealed `HQ-SW1` allowing VLANs `10,20,99` with Native VLAN `99`, while `HQ-SW2` allowed only `20,99` with Native VLAN `1`.
+  - `show vlan brief`: Confirmed VLAN 10 was active locally on `HQ-SW2` but restricted from crossing the trunk.
+  - *Note on Virtual Lab Behavior:* In this virtualized IOS (vIOS-L2) environment, control-plane CDP mismatch syslog alerts (`%CDP-4-NATIVE_VLAN_MISMATCH`) were suppressed due to Port-Channel encapsulation mechanics, making `show interfaces trunk` the primary source of truth for identifying the pruning fault.
+- **Resolution:** Re-aligned `Port-channel1` on `HQ-SW2` to match the core trunk configuration:
+  ```ios
+  HQ-SW2(config)# interface Port-channel1
+  HQ-SW2(config-if)# switchport trunk native vlan 99
+  HQ-SW2(config-if)# switchport trunk allowed vlan 10,20,99
