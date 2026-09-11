@@ -1,1 +1,41 @@
+enable
+configure terminal
 
+hostname BR-SW1
+
+! Create VLANs in Database
+vlan 30
+ name BRANCH_SALES
+exit
+
+vlan 40
+ name BRANCH_IT
+exit
+
+! Configure Router-Facing Uplink (Gi0/0 to BR-R1)
+interface GigabitEthernet0/0
+ description UPLINK_TO_BR-R1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan 1,30,40
+ no shutdown
+exit
+
+! Configure Member Ports for LACP EtherChannel (Gi0/1 and Gi0/2)
+interface range GigabitEthernet0/1 - 2
+ description LACP_LINK_TO_BR-SW2
+ channel-group 1 mode active
+ no shutdown
+exit
+
+! Configure Port-Channel 1 Interface
+interface Port-channel 1
+ description ETHERCHANNEL_TO_BR-SW2
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan 1,30,40
+ no shutdown
+exit
+
+end
+copy running-config startup-config
