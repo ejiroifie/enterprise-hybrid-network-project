@@ -11,7 +11,16 @@
 * **Verification:** Ping from PC4 to 10.10.40.1 and 10.10.30.10 succeeded (0% packet loss).
 
 
+### Break-Fix Log #2: LACP EtherChannel Allowed VLAN Mismatch
 
-
+* **Target Device:** BR-SW1
+* **Affected Component:** Interface Port-channel 1
+* **Symptom:** PC4 (10.10.40.10 on BR-SW2) lost all reachability to default gateway 10.10.40.1, while PC3 (VLAN 30) remained unaffected.
+* **Root Cause:** Port-channel 1 allowed VLAN list on BR-SW1 was misconfigured to '1,30', pruning VLAN 40 frames across the switch interconnect.
+* **Diagnostic Commands Used:**
+  - `ping 10.10.40.1` (Failed on PC4)
+  - `show interfaces trunk` (Identified VLAN 40 missing under 'VLANs allowed on trunk' for Po1 on BR-SW1)
+* **Remediation:** Reconfigured `switchport trunk allowed vlan 1,30,40` on interface Port-channel 1 on BR-SW1.
+* **Verification:** Ping from PC4 to 10.10.40.1 succeeded with 0% packet loss.
 
 
