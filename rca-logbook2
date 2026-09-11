@@ -1,1 +1,17 @@
+### Break-Fix Log #1: Router-on-a-Stick Encapsulation Mismatch
+
+* **Target Device:** BR-R1
+* **Affected Component:** GigabitEthernet0/0.40
+* **Symptom:** PC4 (10.10.40.10) lost all gateway and cross-VLAN reachability.
+* **Root Cause:** Subinterface Gi0/0.40 was configured with 'encapsulation dot1Q 99' instead of matching VLAN 40.
+* **Diagnostic Commands Used:**
+  - `ping 10.10.40.1` (Failed on PC4)
+  - `show running-config interface GigabitEthernet0/0.40` (Identified mismatched dot1Q tag 99)
+* **Remediation:** Reconfigured encapsulation to 'dot1Q 40' under interface Gi0/0.40 on BR-R1.
+* **Verification:** Ping from PC4 to 10.10.40.1 and 10.10.30.10 succeeded (0% packet loss).
+
+
+
+
+
 
