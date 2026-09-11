@@ -1,0 +1,18 @@
+enable
+configure terminal
+
+hostname HQ-R1
+
+! Configure Point-to-Point WAN Link Interface to BR-R1
+interface GigabitEthernet0/1
+ description P2P_LINK_TO_BR-R1
+ ip address 10.0.1.1 255.255.255.252
+ no shutdown
+exit
+
+! Static Routes to Reach Branch VLAN Subnets via BR-R1
+ip route 10.10.30.0 255.255.255.0 10.0.1.2
+ip route 10.10.40.0 255.255.255.0 10.0.1.2
+
+end
+copy running-config startup-config
