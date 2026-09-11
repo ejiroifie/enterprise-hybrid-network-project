@@ -1,0 +1,48 @@
+enable
+configure terminal
+
+hostname BR-SW2
+
+! Create VLANs in Database
+vlan 30
+ name Branch_Data
+exit
+
+vlan 40
+ name Branch_Voice
+exit
+
+! Configure Member Ports for LACP EtherChannel (Gi0/1 and Gi0/2)
+interface range GigabitEthernet0/1 - 2
+ description LACP_LINK_TO_BR-SW1
+ channel-group 1 mode active
+ no shutdown
+exit
+
+! Configure Port-Channel 1 Interface
+interface Port-channel 1
+ description ETHERCHANNEL_TO_BR-SW1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan 1,30,40
+ no shutdown
+exit
+
+! Access Port for PC3 (VLAN 30)
+interface GigabitEthernet1/0
+ description ACCESS_PORT_PC3
+ switchport mode access
+ switchport access vlan 30
+ no shutdown
+exit
+
+! Access Port for PC4 (VLAN 40)
+interface GigabitEthernet1/1
+ description ACCESS_PORT_PC4
+ switchport mode access
+ switchport access vlan 40
+ no shutdown
+exit
+
+end
+copy running-config startup-config
