@@ -24,3 +24,60 @@
 * **Verification:** Ping from PC4 to 10.10.40.1 succeeded with 0% packet loss.
 
 
+
+### Break-Fix Log #3: Access Port VLAN Misassignment
+
+* **Target Device:** BR-SW2
+* **Affected Component:** Interface GigabitEthernet1/1
+* **Symptom:** PC4 (10.10.40.10) lost connectivity to default gateway 10.10.40.1.
+* **Root Cause:** Access port Gi1/1 on BR-SW2 was assigned to VLAN 30 instead of VLAN 40, creating a VLAN/subnet mismatch.
+* **Diagnostic Commands Used:**
+  - `ping 10.10.40.1` (Failed on PC4)
+  - `show vlan brief` (Identified Gi1/1 assigned under VLAN 30)
+  - `show mac address-table interface Gi1/1` (Verified MAC learned on VLAN 30)
+* **Remediation:** Reconfigured `switchport access vlan 40` under interface Gi1/1 on BR-SW2.
+* **Verification:** Ping from PC4 to 10.10.40.1 succeeded with 0% packet loss.
+
+
+
+### Break-Fix Log #4: Switch Management SVI Subnet & Default Gateway Mismatch
+* Target Device: BR-SW2 / BR-R1
+* Affected Component: Interface Vlan 1 (Management SVI), Default Gateway, and
+  BR-R1 Subinterface Gi0/0.1
+* Symptom: In-band remote management ping from router BR-R1 (10.10.1.1) to
+  switch BR-SW2 (10.10.1.2) dropped with a 0% success rate (0/5).
+
+* Root Cause:
+  1. BR-SW2's Vlan 1 interface was misconfigured with an out-of-subnet IP
+     (10.10.99.2/24) and left in an administratively down state.
+  2. BR-SW2's default gateway was incorrectly pointing to 10.10.30.1 (VLAN 30)
+     instead of 10.10.1.1 (VLAN 1), dropping return traffic.
+  3. BR-R1 lacked an active 802.1Q subinterface (Gi0/0.1) configured for
+     VLAN 1 management traffic.
+
+* Diagnostic Commands Used:
+  - ping 10.10.1.2
+    (Failed from BR-R1)
+  - show ip interface brief | exclude unassigned
+    (Identified incorrect IP 10.10.99.2 and down state on Vlan 1)
+  - show ip default-gateway
+    (Identified incorrect gateway 10.10.30.1 on BR-SW2)
+
+* Remediation Steps:
+  - On BR-SW2:
+    - Reconfigured ip address 10.10.1.2 255.255.255.0 and no shutdown under
+      interface Vlan 1.
+    - Updated ip default-gateway 10.10.1.1.
+  - On BR-R1:
+    - Configured interface GigabitEthernet0/0.1 with encapsulation dot1Q 1
+      and ip address 10.10.1.1 255.255.255.0.
+
+* Verification:
+  - ping 10.10.1.2 from BR-R1 succeeded with a 100% success rate (!!!!!).
+
+
+
+
+
+
+
