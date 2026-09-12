@@ -12,8 +12,8 @@
                  |                                    |                                |                         |
                  | Gi0/0                              | Gi0/0                          | Gi0/0                   | (BGP over
         +--------+---------+                 +--------+---------+             +--------+---------+               |  IPsec)
-        |      HQ-SW1      |                 |  P1 --- PE1 --- PE2 |             |      BR-SW1      |               |
-        | (Distribution L3)|                 |  (MPLS / BGP Core)   |             |    (Branch L2)   |               |
+        |      HQ-SW1      |                 |  P1 --- PE1 --- PE2 |          |      BR-SW1      |               |
+        | (Distribution L3)|                 |  (MPLS / BGP Core)   |         |    (Branch L2)   |               |
         +---+----------+---+                 +--------+---------+             +---+----------+---+               |
             |          |                              |                           |          |                   |
    Gi0/1    |          | Gi0/2                        | (SD-WAN Overlay)   Gi0/1  |          | Gi0/2             |
