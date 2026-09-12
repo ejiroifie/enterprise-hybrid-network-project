@@ -76,7 +76,7 @@
   - ping 10.10.1.2 from BR-R1 succeeded with a 100% success rate (!!!!!).
 
 
-### Break-Fix Log #4: EtherChannel LACP Mode Mismatch
+### Break-Fix Log #5: EtherChannel LACP Mode Mismatch
 
 * Target Device: BR-SW1 / BR-SW2
 * Affected Component: Port-Channel 1 (Interfaces Gi0/1 and Gi0/2)
