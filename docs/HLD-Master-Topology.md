@@ -3,7 +3,7 @@
                                          18-NODE MODERN HYBRID & SD-WAN ARCHITECTURE
 ===============================================================================================================================
 
-      [ PHASE 1: HQ CAMPUS ]           [ PHASE 3 & 4: SP CORE & SD-WAN ]      [ PHASE 2: BRANCH ]      [ PHASE 4: CLOUD ]
+      [ PHASE 1: HQ CAMPUS ]           [ PHASE 3 : SP CORE & SD-WAN ]      [ PHASE 2: BRANCH ]      [ PHASE 4: CLOUD ]
       
         +------------------+                 +------------------+             +------------------+     +-------------------+
         |      HQ-R1       |                 |     vManage /    |             |      BR-R1       |     | Azure/AWS Gateway |
