@@ -76,6 +76,41 @@
   - ping 10.10.1.2 from BR-R1 succeeded with a 100% success rate (!!!!!).
 
 
+### Break-Fix Log #4: EtherChannel LACP Mode Mismatch
+
+* Target Device: BR-SW1 / BR-SW2
+* Affected Component: Port-Channel 1 (Interfaces Gi0/1 and Gi0/2)
+* Symptom: Inter-VLAN traffic across switches dropped completely; Po1 entered 
+  a suspended/down state on both switches.
+
+* Root Cause:
+  1. Channel-group protocol mismatch created by running PAgP ('mode desirable')
+     on BR-SW1 while BR-SW2 was configured for LACP ('mode active').
+  2. Because LACP and PAgP protocols cannot negotiate an EtherChannel bundle, 
+     Port-Channel 1 failed to form, blocking VLAN traffic between switches.
+
+* Diagnostic Commands Used:
+  - show etherchannel summary
+    (Identified Po1 in 'SD' state and member ports in independent 'I' / suspended 
+     's' states due to protocol mismatch)
+  - show running-config interface GigabitEthernet0/1
+    (Identified 'channel-group 1 mode desirable' under interface settings)
+
+* Remediation Steps:
+  - On BR-SW1:
+    - Executed interface range GigabitEthernet0/1 - 2
+    - Removed incorrect channel configuration using 'no channel-group'
+    - Reconfigured 'channel-group 1 mode active' to restore LACP negotiation
+
+* Verification:
+  - Executed 'show etherchannel summary' on both BR-SW1 and BR-SW2.
+  - Confirmed Port-Channel status restored to 'Po1(SU)' with member interfaces 
+    Gi0/1 and Gi0/2 displaying '(P)' (bundled in port-channel).
+  - End-to-end ICMP reachability restored from PC3/PC4 to gateway 10.10.30.1.
+
+
+
+
 
 
 
